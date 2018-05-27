@@ -29,7 +29,3 @@
 [submodule "kento031/themes/hugo-theme-introduction"]
 	path = kento031/themes/hugo-theme-introduction
 	url = https://github.com/vickylai/hugo-theme-introduction
-[submodule "kento031/public"]
-	path = kento031/public
-	url = git@github.com:onoxeve/onoxeve.github.io.git
-	branch = master

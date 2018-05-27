@@ -1,0 +1,31 @@
+[submodule "kento031/themes/hugo-theme-cactus-plus"]
+	path = kento031/themes/hugo-theme-cactus-plus
+	url = https://github.com/nodejh/hugo-theme-cactus-plus.git
+	branch = master
+[submodule "kento031/forty"]
+	path = kento031/forty
+	url = https://github.com/MarcusVirg/forty
+[submodule "kento031/hugo-theme-blueberry-detox"]
+	path = kento031/hugo-theme-blueberry-detox
+	url = https://github.com/allnightgrocery/hugo-theme-blueberry-detox
+[submodule "kento031/hugo-h5bp-simple"]
+	path = kento031/hugo-h5bp-simple
+	url = https://github.com/garvincasimir/hugo-h5bp-simple
+[submodule "kento031/themes/hugo-kiera"]
+	path = kento031/themes/hugo-kiera
+	url = https://github.com/avianto/hugo-kiera
+[submodule "kento031/themes/paperback"]
+	path = kento031/themes/paperback
+	url = https://github.com/damiencaselli/paperback
+[submodule "kento031/themes/hugo-goa"]
+	path = kento031/themes/hugo-goa
+	url = https://github.com/shenoybr/hugo-goa
+[submodule "kento031/themes/min_night"]
+	path = kento031/themes/min_night
+	url = https://github.com/nathancday/min_night
+[submodule "kento031/themes/hugo-lithium-theme"]
+	path = kento031/themes/hugo-lithium-theme
+	url = https://github.com/jrutheiser/hugo-lithium-theme
+[submodule "kento031/themes/hugo-theme-introduction"]
+	path = kento031/themes/hugo-theme-introduction
+	url = https://github.com/vickylai/hugo-theme-introduction

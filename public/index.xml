@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kento Uchida</title>
+    <link>kento031/</link>
+    <description>Recent content on Kento Uchida</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 09 Mar 2017 13:23:28 +0800</lastBuildDate>
+    
+	<atom:link href="kento031/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Contact</title>
+      <link>kento031/contact/</link>
+      <pubDate>Thu, 09 Mar 2017 13:23:28 +0800</pubDate>
+      
+      <guid>kento031/contact/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>kento031/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>kento031/about/</guid>
+      <description> 自己紹介  名前：内田 絢斗 所属：横浜国立大学大学院　環境情報学府　情報環境専攻 白川研究室 修士1年 Mail：uchida-kento-nc(at)ynu.jp  研究分野  進化計算 情報幾何 アルゴリズムの理論解析  発表論文 開発履歴  高校の頃のHP： - 2012年度広島学院文化祭特設サイトを制作 横浜国立大学 Robo+ism：NHKロボコン優勝を目指しロボット制作を行うロボコンチーム  担当：組み込み系開発，画像処理，回路制作，学内渉外，学外渉外 2015年度大会 ピットメンバ（全国大会ベスト4） 2016年度大会 ソフトウェア班リーダー（全国大会ベスト8）   プログラミング言語経験  python：研究室でほぼ毎日使用． C言語：サークル所属時に組み込み系開発で使用． Java：高校の頃のGUIのゲーム制作で使用． JavaScript：高校の頃のメイン．ブラウザゲーム開発で使用． HTML / CSS：javascriptと併用．Robo+ismのWebサイト（2015年〜2018年現在）を作成． C#：高校の頃のGUIのゲーム制作で使用．  </description>
+    </item>
+    
+  </channel>
+</rss>

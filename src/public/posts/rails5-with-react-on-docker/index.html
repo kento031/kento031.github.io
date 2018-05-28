@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		 
+			
+  
+    <meta name="twitter:card" content="summary"/>
+    
+      <meta name="twitter:image" content="https://onoxeve.com/images/avatar.png" />
+    
+  
+  
+  <meta name="twitter:title" content="[Rails5.1] Webpacker &#43; React on Docker"/>
+  <meta name="twitter:description" content="Rails5.1 &#43; Webpacker &#43; Reactな開発環境をDockerで作る際の手順。
+
+"/>
+  
+    <meta name="twitter:site" content="@your_twitter_id"/>
+  
+  
+  
+  
+    <meta name="twitter:creator" content="@onox"/>
+  
+
+
+
+		
+		<meta name="author" content="onox">
+		<meta name="description" content="Site Description">
+		<meta name="generator" content="Hugo 0.33" />
+		<title>[Rails5.1] Webpacker &#43; React on Docker &middot; onox blog</title>
+		<link rel="shortcut icon" href="https://onoxeve.com/images/favicon.ico">
+		<link rel="stylesheet" href="https://onoxeve.com/css/style.css">
+		<link rel="stylesheet" href="https://onoxeve.com/css/highlight.css">
+
+		
+		<link rel="stylesheet" href="https://onoxeve.com/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://onoxeve.com/index.xml" rel="alternate" type="application/rss+xml" title="onox blog" />
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://onoxeve.com/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://onoxeve.com/posts'>Archive</a>
+	<a href='https://onoxeve.com/tags'>Tags</a>
+	<a href='https://onoxeve.com/about'>About</a>
+
+	
+
+	
+	<a class="cta" href="https://onoxeve.com/index.xml">Subscribe</a>
+	
+</nav>
+
+
+        <section id="wrapper" class="post">
+            <article>
+                <header>
+                    <h1>
+                        [Rails5.1] Webpacker &#43; React on Docker
+                    </h1>
+                    <h2 class="headline">
+                    Feb 10, 2018 14:24
+                    · 300 words
+                    · 2 minute read
+                      <span class="tags">
+                      
+                      
+                          
+                              <a href="https://onoxeve.com/tags/"></a>
+                          
+                      
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                  
+                    <div id="toc">
+                      <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#0-実施環境">0. 実施環境</a></li>
+<li><a href="#1-ファイル準備">1. ファイル準備</a>
+<ul>
+<li><a href="#docker-compose-yml">docker-compose.yml</a></li>
+<li><a href="#dockerfile">Dockerfile</a></li>
+<li><a href="#gemfile">Gemfile</a></li>
+<li><a href="#gemfile-lock">Gemfile.lock</a></li>
+</ul></li>
+<li><a href="#2-ビルド">2. ビルド</a></li>
+<li><a href="#2-1-現時点でのバグ対応">2.1 現時点でのバグ対応</a></li>
+<li><a href="#3-再ビルド">3. 再ビルド</a></li>
+<li><a href="#4-rails-db-configの修正">4. Rails DB configの修正</a></li>
+<li><a href="#5-アプリ起動">5. アプリ起動</a></li>
+<li><a href="#6-お試しカウンター機能でreact動作確認">6. お試しカウンター機能でReact動作確認</a></li>
+</ul></li>
+</ul>
+</nav>
+                    </div>
+                  
+                
+                <section id="post-body">
+                    <p><code>Rails5.1 + Webpacker + React</code>な開発環境をDockerで作る際の手順。</p>
+
+<p></p>
+
+<h2 id="0-実施環境">0. 実施環境</h2>
+
+<ul>
+<li>maxOS: High Sierra Version 10.13.3</li>
+<li>Docker: Version 17.12.0-ce-mac49 (21995)</li>
+</ul>
+
+<h2 id="1-ファイル準備">1. ファイル準備</h2>
+
+<p>適当なディレクトリを作成し、4つのファイルを準備する。<br />
+概ね公式通りにやっている。<br />
+<a href="https://docs.docker.com/compose/rails/">https://docs.docker.com/compose/rails/</a></p>
+
+<h3 id="docker-compose-yml">docker-compose.yml</h3>
+
+<pre><code>version: '3'
+services:
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+  web:
+    build: .
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    volumes:
+      - .:/reactapp
+    ports:
+      - &quot;3000:3000&quot;
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+</code></pre>
+
+<h3 id="dockerfile">Dockerfile</h3>
+
+<p><code>Webpacker</code>を利用するため、<code>nodejs</code>と<code>yarn</code>を追加。</p>
+
+<pre><code>FROM ruby:2.4.1
+RUN apt-get update -qq &amp;&amp; apt-get install -y build-essential libpq-dev
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash
+RUN apt-get install -y nodejs
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo &quot;deb https://dl.yarnpkg.com/debian/ stable main&quot; | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update -qq &amp;&amp; apt-get install yarn
+RUN mkdir /reactapp
+WORKDIR /reactapp
+ADD Gemfile /reactapp/Gemfile
+ADD Gemfile.lock /reactapp/Gemfile.lock
+RUN bundle install
+ADD . /reactapp
+</code></pre>
+
+<h3 id="gemfile">Gemfile</h3>
+
+<p><code>rails</code>だけでOK。後で<code>rail new</code>する際に上書きされる。</p>
+
+<pre><code>source 'https://rubygems.org'
+gem 'rails', '5.1.4'
+</code></pre>
+
+<h3 id="gemfile-lock">Gemfile.lock</h3>
+
+<p>空ファイルでOK。</p>
+
+<h2 id="2-ビルド">2. ビルド</h2>
+
+<p><code>--webpack=react</code>をつけて<code>rails new</code>することで、<code>webpacker</code>及び、<code>react関連module</code>のインストールまでやってくれる。</p>
+
+<pre><code>cd &lt;project-folder&gt;
+docker-compose run web rails new . --webpack=react
+</code></pre>
+
+<p>※参考: <code>webpacker</code>、<code>react関連module</code>の単体インストール</p>
+
+<ul>
+<li>webpackerの単体インストール</li>
+</ul>
+
+<p><code>Gemfile</code>に追加</p>
+
+<pre><code>gem 'webpacker', '~&gt; 3.2'
+</code></pre>
+
+<pre><code>docker-compose run web rails webpacker:install
+</code></pre>
+
+<ul>
+<li>React関連moduleの単体インストール</li>
+</ul>
+
+<pre><code>docker-compose run web rails webpacker:install:react
+</code></pre>
+
+<h2 id="2-1-現時点でのバグ対応">2.1 現時点でのバグ対応</h2>
+
+<p><code>webpacker</code>インストール時に、Railsルートディレクトリのbin配下に以下ファイルが生成されてない。よって、手動で配置する必要がある。</p>
+
+<ul>
+<li>webpack</li>
+<li>webpack-dev-server</li>
+</ul>
+
+<p>公式のgithubからコピーして配置する。<br />
+<a href="https://github.com/rails/webpacker/tree/master/exe">https://github.com/rails/webpacker/tree/master/exe</a></p>
+
+<p>※条件は不明だが、webpacker (3.2.1)、Rails（5.1.4）で発生している。</p>
+
+<h2 id="3-再ビルド">3. 再ビルド</h2>
+
+<p>新しい<code>Gemfile</code>が生成されたので、イメージを再ビルドする。<code>ADD Gemfile</code>以降が再実行される。</p>
+
+<pre><code>docker-compose build
+</code></pre>
+
+<h2 id="4-rails-db-configの修正">4. Rails DB configの修正</h2>
+
+<p>接続先を<code>mysql</code>に変更する。</p>
+
+<p><code>config/database.yml</code></p>
+
+<pre><code>development:
+  &lt;&lt;: *default
+  database: reactapp_development
+  host: db
+  password: mysql
+
+test:
+  &lt;&lt;: *default
+  database: reactapp_test
+  host: db
+  password: mysql
+</code></pre>
+
+<h2 id="5-アプリ起動">5. アプリ起動</h2>
+
+<pre><code>docker-compose up
+</code></pre>
+
+<p>起動後、ブラウザから<code>http://0.0.0.0:3000/</code>にアクセス。<code>Yay! You’re on Rails!</code>が表示されればOK。</p>
+
+<h2 id="6-お試しカウンター機能でreact動作確認">6. お試しカウンター機能でReact動作確認</h2>
+
+<p>ボタンをクリックしたらカウンターが増加していくviewを作る。</p>
+
+<p>適当にコントローラーを作成</p>
+
+<pre><code>rails g controller top counter
+</code></pre>
+
+<p><code>app/javascript/packs/counter.jsx</code>を作成(Reactコンポーネント)</p>
+
+<pre><code class="language-js">import React from 'react'
+import ReactDOM from 'react-dom'
+
+class Counter extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      counter: 0
+    }
+    this.increment = this.increment.bind(this)
+  }
+  increment() {
+    this.setState(
+      {
+        counter: this.state.counter + 1
+      }
+    )
+  }
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;div&gt; Counter = {this.state.counter}&lt;/div &gt;
+        &lt;button onClick = {this.increment}&gt; Click me!&lt;/button &gt;
+      &lt;/div&gt;
+    )
+  }
+}
+document.addEventListener('DOMContentLoaded', () =&gt; {
+  ReactDOM.render(
+    &lt;Counter /&gt;,
+  document.getElementById('counter')
+)
+})
+</code></pre>
+
+<p><code>views/top/counter.html.erb</code>を以下に書き換える。<br />
+<code>javascript_pack_tag</code>で対象のjsファイルをincludeできる。</p>
+
+<pre><code>&lt;div id=&quot;counter&quot;&gt;&lt;/div&gt;
+&lt;%= javascript_pack_tag &quot;counter&quot; %&gt;
+</code></pre>
+
+<p>webpack-dev-serverを起動する(ファイル変更時に自動でコンパイルをしてくれる)</p>
+
+<pre><code>bin/webpack-dev-server
+</code></pre>
+                </section>
+            </article>
+
+            
+                <a class="twitter" href="https://twitter.com/intent/tweet?text=https%3a%2f%2fonoxeve.com%2fposts%2frails5-with-react-on-docker%2f - %5bRails5.1%5d%20Webpacker%20%2b%20React%20on%20Docker by @your_twitter_id"><span class="icon-twitter"> tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/onoxeve">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © Copyright 2018 <i class="fa fa-heart" aria-hidden="true"></i> onox
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://onoxeve.com/js/jquery-2.2.4.min.js"></script>
+<script src="https://onoxeve.com/js/main.js"></script>
+<script src="https://onoxeve.com/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+  
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'your_google_analytics_id', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+
+
+
+    </body>
+</html>

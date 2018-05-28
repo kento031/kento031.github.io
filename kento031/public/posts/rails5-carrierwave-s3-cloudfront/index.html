@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		 
+			
+  
+    <meta name="twitter:card" content="summary"/>
+    
+      <meta name="twitter:image" content="https://onoxeve.com/images/avatar.png" />
+    
+  
+  
+  <meta name="twitter:title" content="[Rails5] Carrierwave &#43; S3 &#43; Cloudfrontで画像アップロード"/>
+  <meta name="twitter:description" content="Carrierwave &#43; S3 &#43; Cloudfrontで画像アップロードを実装する手順。
+
+"/>
+  
+    <meta name="twitter:site" content="@your_twitter_id"/>
+  
+  
+  
+  
+    <meta name="twitter:creator" content="@onox"/>
+  
+
+
+
+		
+		<meta name="author" content="onox">
+		<meta name="description" content="Site Description">
+		<meta name="generator" content="Hugo 0.33" />
+		<title>[Rails5] Carrierwave &#43; S3 &#43; Cloudfrontで画像アップロード &middot; onox blog</title>
+		<link rel="shortcut icon" href="https://onoxeve.com/images/favicon.ico">
+		<link rel="stylesheet" href="https://onoxeve.com/css/style.css">
+		<link rel="stylesheet" href="https://onoxeve.com/css/highlight.css">
+
+		
+		<link rel="stylesheet" href="https://onoxeve.com/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://onoxeve.com/index.xml" rel="alternate" type="application/rss+xml" title="onox blog" />
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://onoxeve.com/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://onoxeve.com/posts'>Archive</a>
+	<a href='https://onoxeve.com/tags'>Tags</a>
+	<a href='https://onoxeve.com/about'>About</a>
+
+	
+
+	
+	<a class="cta" href="https://onoxeve.com/index.xml">Subscribe</a>
+	
+</nav>
+
+
+        <section id="wrapper" class="post">
+            <article>
+                <header>
+                    <h1>
+                        [Rails5] Carrierwave &#43; S3 &#43; Cloudfrontで画像アップロード
+                    </h1>
+                    <h2 class="headline">
+                    Jul 2, 2017 18:58
+                    · 424 words
+                    · 2 minute read
+                      <span class="tags">
+                      
+                      
+                          
+                              <a href="https://onoxeve.com/tags/"></a>
+                          
+                      
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                  
+                    <div id="toc">
+                      <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#環境">環境</a></li>
+<li><a href="#概要">概要</a>
+<ul>
+<li><a href="#carrierwaveとは">Carrierwaveとは</a></li>
+<li><a href="#fogとは">fogとは</a></li>
+<li><a href="#rmagickとは">rmagickとは</a></li>
+</ul></li>
+<li><a href="#carrierwave入門">Carrierwave入門</a></li>
+<li><a href="#carrierwave-設定カスタマイズ-サンプル">Carrierwave 設定カスタマイズ(サンプル)</a>
+<ul>
+<li><a href="#app-uploaders-avatar-uploader-rb"><code>app/uploaders/avatar_uploader.rb</code></a></li>
+<li><a href="#config-initializers-carrierwave-rb"><code>config/initializers/carrierwave.rb</code></a></li>
+<li><a href="#app-models-user-rb"><code>app/models/user.rb</code></a></li>
+</ul></li>
+<li><a href="#view側の設定">view側の設定</a>
+<ul>
+<li><a href="#フォームサンプル">フォームサンプル</a></li>
+<li><a href="#画像の表示-取得-方法">画像の表示(取得)方法</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+                    </div>
+                  
+                
+                <section id="post-body">
+                    <p>Carrierwave + S3 + Cloudfrontで画像アップロードを実装する手順。</p>
+
+<p></p>
+
+<h2 id="環境">環境</h2>
+
+<pre><code>ruby: 2.3.3
+imagemagick: 6.8
+rails (5.1.1)
+carrierwave (1.1.0)
+fog-aws (1.3.0)
+rmagick (2.16.0)
+</code></pre>
+
+<h2 id="概要">概要</h2>
+
+<h3 id="carrierwaveとは">Carrierwaveとは</h3>
+
+<p>画像アップロード用のライブラリです。</p>
+
+<h3 id="fogとは">fogとは</h3>
+
+<p>クラウドサービス連携用のライブラリです。AWSだけでなく、Azule, GCPなども用意されてます。<br />
+<a href="https://github.com/fog/fog">https://github.com/fog/fog</a><br />
+&gt;fog is the Ruby cloud services library, top to bottom:</p>
+
+<h3 id="rmagickとは">rmagickとは</h3>
+
+<p>画像処理ソフトウェアの<code>ImageMagick</code>をRubyで使えるようにするライブラリです。<br />
+<a href="https://github.com/ImageMagick/ImageMagick">https://github.com/ImageMagick/ImageMagick</a><br />
+&gt;ImageMagick® is a software suite to create, edit, compose, or convert bitmap images.</p>
+
+<p>別途、サーバに<code>ImageMagick</code>がインストールされている必要があります。</p>
+
+<p>例: <code>Ubuntu14.04</code>でのインストール</p>
+
+<pre><code>sudo apt-get update
+sudo apt-get install -y imagemagick libmagick++-dev
+</code></pre>
+
+<h2 id="carrierwave入門">Carrierwave入門</h2>
+
+<p>公式に沿って、UserモデルにAvater画像をアップロードできるようにします。
+<a href="https://github.com/carrierwaveuploader/carrierwave">https://github.com/carrierwaveuploader/carrierwave</a></p>
+
+<pre><code>`Getting Started`
+`Using Amazon S3`
+`Using RMagick`
+</code></pre>
+
+<p>Gemfile</p>
+
+<pre><code class="language-ruby"># 画像アップロード用
+gem 'carrierwave'
+# AWS S3連携用
+gem 'fog-aws'
+# 画像処理用(例: リサイズ)
+gem 'rmagick'
+</code></pre>
+
+<pre><code>bundle install
+</code></pre>
+
+<p>まずは、Uploaderを作成します。</p>
+
+<pre><code class="language-ruby">rails generate uploader Avatar
+</code></pre>
+
+<p>以下ファイルが生成されます。</p>
+
+<pre><code class="language-ruby">app/uploaders/avatar_uploader.rb
+</code></pre>
+
+<p>次に、UserモデルにAvatarカラムを追加します。
+(Userモデルが事前に存在する前提になっています。※)</p>
+
+<pre><code class="language-ruby">rails g migration add_avatar_to_users avatar:string
+rails db:migrate
+</code></pre>
+
+<p>※存在しない場合は、適当にUserモデルを作成します。</p>
+
+<pre><code class="language-ruby">rails g model User name:string email:string password_digest:string
+rails db:migrate
+</code></pre>
+
+<p>追加したAvatarカラムを、<code>mount_uploader</code>に定義します。</p>
+
+<pre><code class="language-ruby">class User &lt; ActiveRecord::Base
+  mount_uploader :avatar, AvatarUploader
+end
+</code></pre>
+
+<h2 id="carrierwave-設定カスタマイズ-サンプル">Carrierwave 設定カスタマイズ(サンプル)</h2>
+
+<h3 id="app-uploaders-avatar-uploader-rb"><code>app/uploaders/avatar_uploader.rb</code></h3>
+
+<p>最初から色んなサンプルが記載されており親切です。</p>
+
+<pre><code class="language-ruby">class ImageUploader &lt; CarrierWave::Uploader::Base
+
+  # 画像リサイズ用にRMagickをinclude
+  include CarrierWave::RMagick
+
+  # iPhoneから画像投稿した際に、画像の向きがおかしい場合があるので、
+  # Rmagickのauto_orientメソッドで向きを正す。
+  process :fix_rotate
+  def fix_rotate
+    manipulate! do |img|
+      img = img.auto_orient
+      img = yield(img) if block_given?
+      img
+    end
+  end
+
+  # Choose what kind of storage to use for this uploader:
+  # ストレージの設定(S3アップロード用にfogを指定)
+  storage :fog
+
+  # Override the directory where uploaded files will be stored.
+  # This is a sensible default for uploaders that are meant to be mounted:
+  # アップロード先のディレクトリの設定
+  def store_dir
+    &quot;uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}&quot;
+  end
+
+  # Add a white list of extensions which are allowed to be uploaded.
+  # 許可するファイル拡張子の設定
+  def extension_whitelist
+    %w(jpg jpeg gif png)
+  end
+
+  # Override the filename of the uploaded files:
+  # ファイル名の設定(以下はランダムな16進数文字列をファイル名の先頭に付与している例)
+  def filename
+     &quot;#{secure_token(10)}.#{file.extension}&quot; if original_filename.present?
+  end
+
+  protected
+  def secure_token(length=16)
+    var = :&quot;@#{mounted_as}_secure_token&quot;
+    model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.hex(length/2))
+  end
+
+  # Create different versions of your uploaded files:
+  # リサイズの設定(要RMagick)
+  # 1つだけではなく複数のversionを設定可能
+  version :thumb do
+      process resize_to_fit: [50, 50]
+  end
+end
+</code></pre>
+
+<p>補足</p>
+
+<blockquote>
+<p>iPhoneから画像投稿した際に、画像の向きがおかしい場合があるので、
+Rmagickのauto_orientメソッドで向きを正す。</p>
+</blockquote>
+
+<p>iPhoneに保存された写真は<code>向きの情報</code>を持っているが、
+ブラウザによってはそれを無視して表示してしまうことが原因です。</p>
+
+<p>参考: アップロードした写真（画像）が回転して表示されるのを直す方法
+<a href="http://qiita.com/hiro_y/items/0476bcf39a77ca184009">http://qiita.com/hiro_y/items/0476bcf39a77ca184009</a></p>
+
+<blockquote>
+<p>ファイル名の設定(以下はランダムな16進数文字列をファイル名の先頭に付与している例)</p>
+</blockquote>
+
+<p>READMEには記載がないですが、公式wikiに詳細が載っています。
+基本は<code>UUID</code>を用いたユニークな文字列が推薦されています。</p>
+
+<p>参考: How to: Create random and unique filenames for all versioned files
+<a href="https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Create-random-and-unique-filenames-for-all-versioned-files">https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Create-random-and-unique-filenames-for-all-versioned-files</a></p>
+
+<h3 id="config-initializers-carrierwave-rb"><code>config/initializers/carrierwave.rb</code></h3>
+
+<p>デフォルトだと存在しないので作成します。
+S3, CloudFrontの設定情報を記載します。
+私の場合は、概ねの設定を<code>Figaro</code>で環境変数に設定しています。</p>
+
+<pre><code class="language-ruby">CarrierWave.configure do |config|
+  config.fog_provider = 'fog/aws'
+  config.fog_credentials = {
+    provider: 'AWS',
+    aws_access_key_id: ENV['fog_api_key'],        # AWSアクセスキー
+    aws_secret_access_key: ENV['fog_api_secret'], # AWSシークレットキー
+    region: ENV['fog_region'],                    # S3リージョン
+    host: ENV['fog_host']                         # S3エンドポイント名(例: s3-us-west-2.amazonaws.com)
+  }
+
+  # キャッシュもS3に置くようにする
+  config.cache_storage = :fog
+  config.cache_dir = 'tmp/image-cache'
+
+  # S3バケット名
+  config.fog_directory = ENV['fog_directory']
+
+  # CloudFrontのDomainName or CNAME(例: http://xxx.cloudfront.net)
+  # CDNを使わない場合は、S3バケットの絶対パス(例: https://s3-us-west-2.amazonaws.com/&lt;backet&gt;)
+  config.asset_host = ENV['fog_asset_host']
+end
+</code></pre>
+
+<h3 id="app-models-user-rb"><code>app/models/user.rb</code></h3>
+
+<p>このままだと画像を削除してもS3には残ってしまうため、
+<code>before_destroy</code>でS3の画像を削除します。</p>
+
+<pre><code class="language-ruby">class User &lt; ActiveRecord::Base
+  mount_uploader :avatar, AvatarUploader
+  before_destroy :clean_s3
+private
+  def clean_s3
+    avatar.remove!       #オリジナルの画像を削除    
+    avatar.thumb.remove! #thumb画像を削除
+  rescue Excon::Errors::Error =&gt; error
+    puts &quot;Something gone wrong&quot;
+    false
+  end
+end
+</code></pre>
+
+<p>参考: <a href="https://stackoverflow.com/questions/22391183/carrierwave-destroy-object-only-after-mounted-files-have-been-deleted-from-sto">https://stackoverflow.com/questions/22391183/carrierwave-destroy-object-only-after-mounted-files-have-been-deleted-from-sto</a></p>
+
+<h2 id="view側の設定">view側の設定</h2>
+
+<h3 id="フォームサンプル">フォームサンプル</h3>
+
+<pre><code class="language-html">&lt;%= form_for(@user) do |f| %&gt;
+  &lt;%= f.file_field :avatar %&gt;
+  &lt;%= f.submit 'Upload' %&gt;
+&lt;% end %&gt;
+</code></pre>
+
+<p><code>file_field</code>にAvatarカラムを設定します。</p>
+
+<h3 id="画像の表示-取得-方法">画像の表示(取得)方法</h3>
+
+<pre><code class="language-html">&lt;%= image_tag user.avatar.thumb.url %&gt;
+</code></pre>
+
+<p><code>thumb</code>の部分は<code>version</code>名と合わせる必要があります。</p>
+
+<p><code>app/uploaders/avatar_uploader.rb</code></p>
+
+<pre><code>  version :thumb do
+      process resize_to_fit: [50, 50]
+  end
+</code></pre>
+
+<p>オリジナル画像を取得する場合は、<code>user.avatar.url</code>です。</p>
+                </section>
+            </article>
+
+            
+                <a class="twitter" href="https://twitter.com/intent/tweet?text=https%3a%2f%2fonoxeve.com%2fposts%2frails5-carrierwave-s3-cloudfront%2f - %5bRails5%5d%20Carrierwave%20%2b%20S3%20%2b%20Cloudfront%e3%81%a7%e7%94%bb%e5%83%8f%e3%82%a2%e3%83%83%e3%83%97%e3%83%ad%e3%83%bc%e3%83%89 by @your_twitter_id"><span class="icon-twitter"> tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/onoxeve">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © Copyright 2018 <i class="fa fa-heart" aria-hidden="true"></i> onox
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://onoxeve.com/js/jquery-2.2.4.min.js"></script>
+<script src="https://onoxeve.com/js/main.js"></script>
+<script src="https://onoxeve.com/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+  
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'your_google_analytics_id', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+
+
+
+    </body>
+</html>

@@ -11,7 +11,7 @@
 - アルゴリズムの理論解析
 
 ### 国際会議論文（査読付き）
-- __Kento Uchida__, Shirakawa Shinichi, Akimoto Youhei, "Analysis of Information Geometric Optimization with Isotropic Gaussian Distribution Under Finite Samples", Genetic and Evolutionary Computation Conference 2018 (GECCO 2018), Kyoto, Japan, 15th-19th July (2018). (to appear)
+- __Kento Uchida__, Shirakawa Shinichi, Akimoto Youhei, "[Analysis of Information Geometric Optimization with Isotropic Gaussian Distribution Under Finite Samples](https://dl.acm.org/citation.cfm?id=3205455.3205487)", Genetic and Evolutionary Computation Conference 2018 (GECCO 2018), Kyoto, Japan, 15th-19th July (2018).
 
 ### 国内発表
 - __内田絢斗__，白川真一，秋本洋平，"等方性ガウス分布を用いたInformation Geometric Optimizationの有限サンプル解析"，進化計算シンポジウム2017

@@ -2,7 +2,7 @@
 ### 自己紹介
 - 名前：内田 絢斗
 - 所属：横浜国立大学大学院　環境情報学府　情報環境専攻 [白川研究室](http://shiralab.ynu.ac.jp/) 修士1年
-- Mail：uchida-kento-nc(at)ynu.jp
+- 連絡先：uchida-kento-nc(at)ynu.jp
 
 ### 研究分野
 - 情報幾何

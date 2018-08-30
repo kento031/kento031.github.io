@@ -7,14 +7,18 @@
 ### 研究分野
 - 情報幾何
 	- Information Geometric Optimization
+	- Neural Architecture Search
 - 進化計算
 - アルゴリズムの理論解析
 
 ### 国際会議論文（査読付き）
-- __Kento Uchida__, Shirakawa Shinichi, Akimoto Youhei, "[Analysis of Information Geometric Optimization with Isotropic Gaussian Distribution Under Finite Samples](https://dl.acm.org/citation.cfm?id=3205455.3205487)", Genetic and Evolutionary Computation Conference 2018 (GECCO 2018), Kyoto, Japan, 15th-19th July (2018).
+- __Kento Uchida__, Shirakawa Shinichi, Akimoto Youhei. "[Analysis of Information Geometric Optimization with Isotropic Gaussian Distribution Under Finite Samples](https://dl.acm.org/citation.cfm?id=3205455.3205487)". Genetic and Evolutionary Computation Conference 2018 (GECCO 2018). Kyoto, Japan. 15th-19th July (2018).
+
+### 国際会議論文（査読なし）
+- __Kento Uchida__, Akimoto Youhei, hirakawa Shinichi. "Analysis of Information Geometric Optimization with Isotropic Gaussian Distribution: Toward Finite-Sample Analysis on Convex Quadratic Functions". 2018 JPNSEC International Workshop on Evolutionary Computation. Shenzhen, China. 2018.
 
 ### 国内発表
-- __内田絢斗__，白川真一，秋本洋平，"等方性ガウス分布を用いたInformation Geometric Optimizationの有限サンプル解析"，進化計算シンポジウム2017
+- __内田絢斗__， 白川真一， 秋本洋平. "等方性ガウス分布を用いたInformation Geometric Optimizationの有限サンプル解析". 進化計算シンポジウム2017.
 
 ### 受賞歴
 - [進化計算コンペティション2017　産業界で使える進化計算とは？](http://www.jpnsec.org/symposium201703.html)
